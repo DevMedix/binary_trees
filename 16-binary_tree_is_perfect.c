@@ -19,10 +19,11 @@ int count_nodes(const binary_tree_t *tree)
 int tree_height(const binary_tree_t *tree)
 {
 	if (tree == NULL)
-		return 0;
+		return (0);
 
 	int left_height = tree_height(tree->left);
 	int right_height = tree_height(tree->right);
+
 	return ((left_height > right_height) ?
 			left_height + 1 : right_height + 1);
 }
@@ -35,8 +36,8 @@ int tree_height(const binary_tree_t *tree)
 int binary_tree_is_perfect(const binary_tree_t *tree)
 {
 	int height = 0;
-    int node_count = 0;
-    int expected_node_count = 0;
+	int node_count = 0;
+	int expected_node_count = 0;
 
 	if (tree == NULL)
 		return (0);
@@ -46,7 +47,7 @@ int binary_tree_is_perfect(const binary_tree_t *tree)
 
 	expected_node_count = (1 << height) - 1;
 
-	if (node_count == expected_node_count) 
+	if (node_count == expected_node_count)
 		return (1);
 
 	return (0);
