@@ -90,6 +90,12 @@ void recursion(linked_t **head, const binary_tree_t *tree)
 	}
 }
 
+/**
+* binary_tree_levelorder - traverses binary list using level order traversal
+* @tree: pointer to root node
+* @func: pointer to function to be called with node
+* Return: void
+*/
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
 	size_t height = 0, count = 0;
