@@ -1,125 +1,123 @@
 #include "binary_trees.h"
 
 /**
-* struct QueueNode - Queue node
-*
-* @tree_node: points to a binary tree node
-* @next: pointer to the next node on the queue
+* tree_height - measures the height of the binary tree
+* @tree: pointer to the root node of the binary tree
+* Return: the height of the tree
 */
-typedef struct QueueNode
+int tree_height(const binary_tree_t *tree)
 {
-	binary_tree_t *tree_node;
-	struct QueueNode *next;
-} QueueNode;
+	if (tree == NULL)
+		return (0);
 
-/**
-* struct Queue - Queue
-* @front: node after
-* @back: node before
-*/
-typedef struct Queue
-{
-	QueueNode *front, *back;
-} Queue;
+	int left_height = tree_height(tree->left);
+	int right_height = tree_height(tree->right);
 
-/**
-* newQueueNode - a node queue
-* @tree: pointer to a tree node
-* Return: a queue node
-*/
-QueueNode *newQueueNode(binary_tree_t *tree)
-{
-	QueueNode *temp;
-
-	temp = malloc(sizeof(QueueNode));
-	temp->tree_node = tree;
-	temp->next = NULL;
-
-	return (temp);
+	return ((left_height > right_height) ?
+			left_height + 1 : right_height + 1);
 }
 
 /**
-* createQueue - creates a queue for the node
-*
-* Return: pointer to the queue
+* depth - returns the distance from node to root
+* @node: pointer to node to find depth
+* Return: the depth of the node
 */
-Queue *createQueue(void)
+int depth(const binary_tree_t *node)
 {
-	Queue *q = malloc(sizeof(Queue));
-	q->front = q->back = NULL;
+	int depthVal = 0;
 
-	return (q);
-}
-
-/**
-* enQueue - adds a node to the queue
-* @tree: pointer to the binary tree
-* Return: void
-*/
-void enQueue(Queue *q, binary_tree_t *tree)
-{
-	QueueNode *temp;
-
-	temp = newQueueNode(tree);
-
-	if (q->back == NULL)
+	while (node != NULL)
 	{
-		q->front = q->back = temp;
+		depthVal++;
+		node = node->parent;
+	}
+
+	return (depthVal);
+}
+
+/**
+ * linkedNode - this function makes a linked list from depth level and node
+ * @head: pointer to head of linked list
+ * @tree: node to store
+ * @level: depth of node to store
+ * Return: Nothing
+ */
+void linkedNode(linked_t **head, const binary_tree_t *tree, size_t level)
+{
+	linked_t *new, *temp;
+
+	new = malloc(sizeof(linked_t));
+	if (new == NULL)
 		return;
+
+	new->n = level;
+	new->node = tree;
+	if (*head == NULL)
+	{
+		new->next = NULL;
+		*head = new;
+	}
+	else
+	{
+		temp = *head;
+		while (temp->next != NULL)
+		{
+			temp = temp->next;
+		}
+		new->next = NULL;
+		temp->next = new;
 	}
 }
 
 /**
-* deQueue - removes node from queue
-* @q: pointer to the node
-* Return: pointer to the queue
-*/
-QueueNode *deQueue(Queue *q)
+ * recursion - goes through the complete tree and each stores each node
+ * in linked_node function
+ * @head: pointer to head of linked list
+ * @tree: node to check
+ * Return: Nothing by default it affects the pointer
+ */
+void recursion(linked_t **head, const binary_tree_t *tree)
 {
-	QueueNode *temp;
+	size_t level = 0;
 
-	if (q->front == NULL)
-		return (NULL);
-
-	temp = q->front;
-	q->front = q->front->next;
-
-	if (q->front == NULL)
-		q->back = NULL;
-
-	return (temp);
+	if (tree != NULL)
+	{
+		level = depth(tree);
+		linkedNode(head, tree, level);
+		recursion(head, tree->left);
+		recursion(head, tree->right);
+	}
 }
 
-/**
-* binary_tree_levelorder - goes through a binary tree using level
-* order traversal
-* @tree: pointer to the root node of the tree
-* @func: pointer to a called function using the node data
-* Return: nothing
-*/
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
-	Queue *queue;
-	QueueNode *current;
+	size_t height = 0, count = 0;
+	linked_t *head, *temp;
 
 	if (tree == NULL || func == NULL)
 		return;
 
-	queue = createQueue();
-	enQueue(queue, (binary_tree_t *)tree);
+	height = tree_height(tree);
+	head = NULL;
+	recursion(&head, tree);
 
-	while (queue->front != NULL)
+	while (count <= height)
 	{
-		current = deQueue(queue);
-		func(current->tree_node->n);
+		temp = head;
+		while(temp != NULL)
+		{
+			if (count == temp->n)
+				func(temp->node->n);
 
-		if (current->tree_node->left != NULL)
-			enQueue(queue, current->tree_node->left);
-
-		if (current->tree_node->right != NULL)
-			enQueue(queue, current->tree_node->right);
-
-		free(current);
+			temp = temp->next;
+		}
+		count++;
 	}
-	free(queue);
+
+	while (head != NULL)
+	{
+		temp = head;
+		head = head->next;
+		free(temp);
+	}
 }
